@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Prank Popup Brutal tapi Ringan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        margin: 0;
+        background: black;
+        font-family: sans-serif;
+        overflow: hidden;
+      }
+      .popup {
+        position: fixed;
+        width: 80vw;
+        max-width: 360px;
+        background: #111;
+        border: 3px solid red;
+        box-shadow: 0 0 15px red;
+        border-radius: 10px;
+        padding: 8px;
+        z-index: 9999;
+        user-select: none;
+        touch-action: none;
+        transition: top 0.2s ease, left 0.2s ease;
+      }
+      .popup video {
+        width: 100%;
+        border-radius: 6px;
+        display: block;
+      }
+      .popup button {
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        font-size: 26px;
+        color: white;
+        cursor: pointer;
+        z-index: 10;
+        user-select: none;
+      }
+      .done-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 22px;
+        color: white;
+        text-align: center;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="popup-container"></div>
+    <div class="done-message" id="doneMessage">
+      Sekian dari Alii, terimakasih!
+    </div>
+
+    <script>
+      const maxPopups = 7; // batas maksimal popup
+      let popupCount = 0;
+      const container = document.getElementById("popup-container");
+
+      function randomPos() {
+        const vw = Math.min(window.innerWidth, 360);
+        const top = Math.random() * (window.innerHeight - 280);
+        const left = Math.random() * (window.innerWidth - vw);
+        return { top, left };
+      }
+
+      function createSinglePopup() {
+        if (popupCount >= maxPopups) {
+          showDoneMessage();
+          return;
+        }
+
+        const popup = document.createElement("div");
+        popup.className = "popup";
+        const pos = randomPos();
+        popup.style.top = pos.top + "px";
+        popup.style.left = pos.left + "px";
+
+        const video = document.createElement("video");
+        video.src = "video.mp4"; // ganti video kamu
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = false;
+        video.playsInline = true;
+        video.volume = 1;
+
+        const btn = document.createElement("button");
+        btn.textContent = "×";
+
+        let clicked = false;
+
+        btn.onclick = () => {
+          if (clicked) return;
+          clicked = true;
+          if (popup.parentElement) container.removeChild(popup);
+
+          popupCount++;
+          if (popupCount < maxPopups) {
+            createMultiplePopups(2);
+          } else {
+            showDoneMessage();
+          }
+        };
+
+        setTimeout(() => {
+          if (!clicked) {
+            clicked = true;
+            if (popup.parentElement) container.removeChild(popup);
+            popupCount++;
+            if (popupCount < maxPopups) {
+              createMultiplePopups(2);
+            } else {
+              showDoneMessage();
+            }
+          }
+        }, 3000);
+
+        // Dragging popup di HP
+        let drag = { active: false, x: 0, y: 0 };
+        popup.addEventListener("touchstart", (e) => {
+          drag.active = true;
+          drag.x = e.touches[0].clientX - popup.offsetLeft;
+          drag.y = e.touches[0].clientY - popup.offsetTop;
+        });
+        popup.addEventListener("touchmove", (e) => {
+          if (!drag.active) return;
+          popup.style.left = e.touches[0].clientX - drag.x + "px";
+          popup.style.top = e.touches[0].clientY - drag.y + "px";
+        });
+        popup.addEventListener("touchend", () => {
+          drag.active = false;
+        });
+
+        popup.appendChild(btn);
+        popup.appendChild(video);
+        container.appendChild(popup);
+      }
+
+      function createMultiplePopups(n) {
+        for (let i = 0; i < n; i++) {
+          if (popupCount >= maxPopups) {
+            showDoneMessage();
+            return;
+          }
+          createSinglePopup();
+        }
+      }
+
+      function showDoneMessage() {
+        if (document.getElementById("doneMessage").style.display !== "block") {
+          document.getElementById("doneMessage").style.display = "block";
+        }
+      }
+
+      createSinglePopup();
+    </script>
+  </body>
+</html>
